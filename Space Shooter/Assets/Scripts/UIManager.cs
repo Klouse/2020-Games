@@ -37,7 +37,6 @@ public class UIManager : MonoBehaviour
     private Text _resultsScreenBestScoreText;
     [SerializeField]
     private Text _gameBestScoreText;
-    private int _bestScore;
     private string _defaultBestScoreText = "Best Score: ";
     private string _defaultScoreText = "Score: ";
 

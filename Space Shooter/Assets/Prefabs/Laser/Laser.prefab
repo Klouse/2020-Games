@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 7530576386469500715}
   - component: {fileID: 756899176326913282}
   - component: {fileID: 71048012746025521}
+  - component: {fileID: 3147908636416781147}
   m_Layer: 0
   m_Name: Laser
   m_TagString: Laser
@@ -144,4 +145,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _playerLaserSpeed: 8
-  _enemyLaserSpeed: 6
+  _enemyLaserSpeed: 4
+--- !u!114 &3147908636416781147
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3289475027031981633}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2112faa1bfb6add4b91e4a089c37df13, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

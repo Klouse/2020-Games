@@ -32,11 +32,11 @@ public class Player : MonoBehaviour
     private Vector3 _worldClickPosition;
 
     // Laser
-    [SerializeField]
-    private GameObject _defaultLaserPrefab;
     private Vector3 _laserOffset = new Vector3(0f,0.5f,0f);
     public float fireRate = 0.15f;
     private float _nextFire = 0.0f;
+
+    private Dictionary<string, bool> _weapons;
 
     // Power Ups
     [SerializeField]
@@ -48,11 +48,7 @@ public class Player : MonoBehaviour
     [SerializeField]
     private bool _isShieldActive = false;
     [SerializeField]
-    private GameObject _tripleShotPrefab;
-    [SerializeField]
     private GameObject _shieldPrefab;
-    [SerializeField]
-    private GameObject _focusShotPrefab;
     [SerializeField]
     private float _shieldDuration = 10.0f;
     [SerializeField]
@@ -66,6 +62,7 @@ public class Player : MonoBehaviour
 
     // Score
     private int _score;
+    public int _kills{get; set;}
     private int _bestScore;
 
     // Animations
@@ -90,6 +87,7 @@ public class Player : MonoBehaviour
     void Start()
     {
         _score = 0;
+        _kills = 0;
         _bestScore = PlayerPrefs.GetInt("Best Score", 0);
         _lives = 3;
         transform.position = new Vector3(0f,-1.0f,0f);
@@ -193,17 +191,19 @@ public class Player : MonoBehaviour
     void Shoot()
     {
         _nextFire = Time.time + (fireRate/100);
-        GameObject laserPrefab;
+        GameObject laserPrefab = null;
         Vector3 laserPos = transform.position;
         if (_isTripleShotActive){
-            laserPrefab = _tripleShotPrefab;
+            laserPrefab = GameObjectPooler.Instance.Get("Triple_Shot_Laser");
         }else if (_isFocusShotActive){
-            laserPrefab = _focusShotPrefab;
+            laserPrefab = GameObjectPooler.Instance.Get("Focus_Shot_Laser");
         }else{
-            laserPrefab = _defaultLaserPrefab;
+            laserPrefab = GameObjectPooler.Instance.Get("Default_Laser");
             laserPos += _laserOffset;
         }
-        Instantiate(laserPrefab,laserPos,Quaternion.identity);
+        laserPrefab.transform.position = laserPos;
+        laserPrefab.transform.localEulerAngles = Quaternion.identity.eulerAngles;
+        laserPrefab.SetActive(true);
 
         //Play Laser Audio Clip
         _playerAudioSource.clip = _laserAudioClip;
@@ -296,6 +296,10 @@ public class Player : MonoBehaviour
         // add to the score that exists, could be positive or negative, so bind to 0 if it hits it.
         _score += val;
         _uiManager.updateScoreUI(_score);
+    }
+
+    public void toggleWeapon(){
+        
     }
 
     IEnumerator PowerDownRoutine(float cooldown, int powerID){

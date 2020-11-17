@@ -9,12 +9,15 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3738217647299338108}
-  - component: {fileID: -7483897831806883069}
   - component: {fileID: 5879171972142653757}
   - component: {fileID: 1301178909733543917}
   - component: {fileID: 1482692434399170468}
   - component: {fileID: 9153672224153666345}
   - component: {fileID: -3474989411870206818}
+  - component: {fileID: -7483897831806883069}
+  - component: {fileID: -79248677673830003}
+  - component: {fileID: -1089575360711005693}
+  - component: {fileID: 8320558973050795442}
   m_Layer: 0
   m_Name: Enemy
   m_TagString: Enemy
@@ -31,37 +34,13 @@ Transform:
   m_GameObject: {fileID: 547329581459947930}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.4, y: 0.4, z: 0.4}
+  m_LocalScale: {x: 0.2, y: 0.2, z: 0.2}
   m_Children:
   - {fileID: 3070774430210748267}
   - {fileID: 4889438476071678658}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &-7483897831806883069
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 547329581459947930}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7b9e2b03f9007b74a8aeb8a36ca3bacd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _speed: 1.5
-  _lives: 3
-  _pointValue: 10
-  _explosionAudioClip: {fileID: 8300000, guid: a885c043fab7e46438bba03ba9dab6bc, type: 3}
-  _enemyLaserAudioClip: {fileID: 8300000, guid: 75676f361bdfeaf41a46623e95df3dbc,
-    type: 3}
-  _defaultLaserPrefab: {fileID: 3305659696820924534, guid: b5a196083cd61da4d8c1d2bb9d12bc10,
-    type: 3}
-  _fireRate: 100
-  _leftWingDamageIndicatorVisual: {fileID: 7395908003672918012}
-  _rightWingDamageIndicatorVisual: {fileID: 2023275914504050785}
-  _enemyLaserColor: {r: 0.9624374, g: 1, b: 0, a: 1}
 --- !u!212 &5879171972142653757
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -189,7 +168,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
-  m_PlayOnAwake: 1
+  m_PlayOnAwake: 0
   m_Volume: 0.25
   m_Pitch: 1
   Loop: 0
@@ -274,6 +253,89 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &-7483897831806883069
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 547329581459947930}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7b9e2b03f9007b74a8aeb8a36ca3bacd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _speed: 1.5
+  _startingSpeed: 1.5
+  _lives: 3
+  _startingLives: 3
+  _pointValue: 10
+  _explosionAudioClip: {fileID: 8300000, guid: a885c043fab7e46438bba03ba9dab6bc, type: 3}
+  _enemyLaserAudioClip: {fileID: 8300000, guid: 75676f361bdfeaf41a46623e95df3dbc,
+    type: 3}
+  _fireRate: 200
+  _leftWingDamageIndicatorVisual: {fileID: 7395908003672918012}
+  _rightWingDamageIndicatorVisual: {fileID: 2023275914504050785}
+  _enemyLaserColor: {r: 0.9624374, g: 1, b: 0, a: 1}
+  _gameObjectPool: {fileID: 0}
+  target: {fileID: 0}
+  updateRate: 2
+  aiSpeed: 300
+  fMode: 0
+  pathIsEnded: 0
+  nextWaypointDistance: 3
+--- !u!114 &-79248677673830003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 547329581459947930}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 255e8146a73a5624da027d9ca7635cc8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &-1089575360711005693
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 547329581459947930}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2112faa1bfb6add4b91e4a089c37df13, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &8320558973050795442
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 547329581459947930}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 373b52eb9bf8c40f785bb6947a1aee66, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  version: 1
+  drawGizmos: 1
+  detailedGizmos: 0
+  startEndModifier:
+    addPoints: 0
+    exactStartPoint: 3
+    exactEndPoint: 3
+    useRaycasting: 0
+    mask:
+      serializedVersion: 2
+      m_Bits: 4294967295
+    useGraphRaycasting: 0
+  traversableTags: -1
+  tagPenalties: 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  graphMask:
+    value: -1
 --- !u!1 &2023275914504050785
 GameObject:
   m_ObjectHideFlags: 0
