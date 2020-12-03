@@ -8,6 +8,8 @@ using Pathfinding;
 
 public class EnemyAI : MonoBehaviour
 {
+    [SerializeField]
+    private GameManager _gameManager;
 
     // AI
     private Transform _target;
@@ -15,8 +17,7 @@ public class EnemyAI : MonoBehaviour
     private Seeker _seeker;
     private Enemy _enemy;
     // The AI's speed per second
-    public float aiSpeed = 300f;
-    private Rigidbody2D _rb;
+    public float aiSpeed = 3.5f;
     public Path path;
     public ForceMode2D fMode;
     [HideInInspector]
@@ -25,44 +26,38 @@ public class EnemyAI : MonoBehaviour
     private int currentWaypoint = 0;
     // max distance from the AI to a waypoint for it to continue to the next waypoint
     public float nextWaypointDistance = 3;
-    // Start is called before the first frame update
-    void Start()
-    {
-        _seeker = GetComponent<Seeker>();
-        _rb = GetComponent<Rigidbody2D>();
-        _enemy = GetComponent<Enemy>();
-
-        if (_target == null){
-            Debug.Log("No target looking...");
-            FindTarget();
-        }
-        
-    }
 
     private void OnEnable() {
-        if (_target == null){
-            Debug.Log("No target looking...");
-            FindTarget();
+        _seeker = GetComponent<Seeker>();
+        _gameManager = GameObject.Find("Game_Manager").GetComponent<GameManager>();
+        if (_seeker == null){
+            Debug.LogError("Seeker is null. PANIC!!");
         }
-        _seeker.StartPath(transform.position, _target.position, OnPathComplete);
-        StartCoroutine(UpdatePath());
     }
     private void OnDisable() {
         StopAllCoroutines();
     }
 
-    private void FindTarget(){
-        _target = GameObject.Find("Player").transform;
-        Debug.Log("Target: " + _target.name);
+    // Start is called before the first frame update
+    void Start()
+    {
+        _enemy = GetComponent<Enemy>();
+        if (_gameManager == null){
+            Debug.LogError("Game Manager on Enemy UI is Null");
+        }
+    }
+
+    public void StartPathing (Transform target){
+            _target = target;
+            _seeker.StartPath(transform.position, _target.position, OnPathComplete);
+            StartCoroutine(UpdatePath());
     }
 
     IEnumerator UpdatePath (){
         if (_target == null){
-            Debug.Log("No target looking...");
-            FindTarget();
+            Debug.Log("No target provided...PANIC!!!!");
         }else{
             _seeker.StartPath(transform.position, _target.position, OnPathComplete);
-
             yield return new WaitForSeconds(1f/updateRate );
             StartCoroutine(UpdatePath());
         }
@@ -70,38 +65,39 @@ public class EnemyAI : MonoBehaviour
     }
 
     public void OnPathComplete (Path p){
-        Debug.Log("Path error? " + p.error);
-        if (!path.error){
+        if (p.error){
+            Debug.LogError("Path error: " + p.error);
+        }else{
             path = p;
             currentWaypoint = 0;
         }
     }
 
-    private void FixedUpdate() {
+    private void Update() {
         if (_enemy.enemyIsAlive){
-            if (_target == null){
-                //TODO: Insert a target search here
-                return;
-            }
-
             if (path == null)
                 return;
-
+            
+            pathIsEnded = false;
+            float speedFactor = 1f;
             if (currentWaypoint >= path.vectorPath.Count){
-                if (pathIsEnded)
+                if (pathIsEnded){
+                    speedFactor = 1f;
                     return;
+                }
 
                 Debug.Log("Path has Ended.");
                 pathIsEnded = true;
                 return;
             }
-            pathIsEnded = false;
-
-            Vector3 direction = ( path.vectorPath[currentWaypoint] - transform.position ).normalized;
-            direction = direction * aiSpeed * Time.fixedDeltaTime;
-            _rb.AddForce(direction, fMode);
-
             float distanceToCurrentWaypoint = Vector3.Distance (transform.position, path.vectorPath[currentWaypoint]);
+            //speedFactor = Mathf.Sqrt(distanceToCurrentWaypoint/nextWaypointDistance);
+
+            Vector3 velocity = ( path.vectorPath[currentWaypoint] - transform.position ).normalized;
+            velocity = velocity * aiSpeed * speedFactor;
+            transform.position += velocity * Time.deltaTime;
+
+            
 
             if (distanceToCurrentWaypoint < nextWaypointDistance){
                 currentWaypoint++;
@@ -109,5 +105,4 @@ public class EnemyAI : MonoBehaviour
             }
         }
     }
-
 }

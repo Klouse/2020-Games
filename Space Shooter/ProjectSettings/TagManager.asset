@@ -4,13 +4,10 @@
 TagManager:
   serializedVersion: 2
   tags:
-  - Laser
   - Enemy
-  - SpawnManager
-  - PowerUp
+  - Laser
   - EnemyLaser
-  - ui
-  - SpawnPoint
+  - PowerUp
   layers:
   - Default
   - TransparentFX
@@ -20,13 +17,13 @@ TagManager:
   - UI
   - 
   - 
-  - Post Processing
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
+  - WeaponSystemBullets
+  - PlayerLayer
+  - StreetLightingFixtures
+  - TurretLayer
+  - TurretWeaponSystemBullets
+  - Background
+  - Objects
   - 
   - 
   - 
@@ -49,11 +46,20 @@ TagManager:
     uniqueID: 0
     locked: 0
   - name: Background
-    uniqueID: 3361131907
+    uniqueID: 224423217
     locked: 0
   - name: Foreground
-    uniqueID: 1690729487
+    uniqueID: 1282058305
+    locked: 0
+  - name: Enemy_Body
+    uniqueID: 3395067517
+    locked: 0
+  - name: Enemy_Cockpit
+    uniqueID: 3554634581
+    locked: 0
+  - name: Enemy_Accent
+    uniqueID: 2882448231
     locked: 0
   - name: Superground
-    uniqueID: 2504801559
+    uniqueID: 2913586395
     locked: 0

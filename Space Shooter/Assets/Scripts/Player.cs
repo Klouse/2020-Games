@@ -20,9 +20,7 @@ public class Player : MonoBehaviour
     private float _upperXBound = 2.72f;
     [SerializeField]
     private int _lives = 3;
-    [SerializeField]
-    private int _startingShieldLives = 3;
-    private int _activeShieldLives = 0;
+    private int _maxLives;
     private bool _isAlive = true;
     
     private Vector3 startingPositionPerUpdate;
@@ -62,7 +60,8 @@ public class Player : MonoBehaviour
 
     // Score
     private int _score;
-    public int _kills{get; set;}
+    public int currentWaveKills{get; set;}
+    private int _totalKillsPerMatch;
     private int _bestScore;
 
     // Animations
@@ -73,6 +72,8 @@ public class Player : MonoBehaviour
     private AudioSource _playerAudioSource;
     [SerializeField]
     private GameObject _explosionPrefab;
+    [SerializeField]
+    private bool _canFire = true;
 
     private void Awake() {
         _mainCamera = Camera.main;
@@ -87,9 +88,10 @@ public class Player : MonoBehaviour
     void Start()
     {
         _score = 0;
-        _kills = 0;
+        currentWaveKills = 0;
+        _totalKillsPerMatch = 0;
+        _maxLives = _lives;
         _bestScore = PlayerPrefs.GetInt("Best Score", 0);
-        _lives = 3;
         transform.position = new Vector3(0f,-1.0f,0f);
         if (_spawnManager == null)
         {
@@ -100,7 +102,7 @@ public class Player : MonoBehaviour
         }else {
             _uiManager.updateScoreUI(_score);
             _uiManager.updateBestScoreUI(_bestScore);
-            _uiManager.updateLivesUI(_lives);
+            _uiManager.updateLivesUI(_lives, _maxLives);
         }
         if (_gameManager == null){
             Debug.LogError("Game Manager on Player is NULL");
@@ -120,7 +122,7 @@ public class Player : MonoBehaviour
             MovePlayer();
         }
         
-        if (Time.time > _nextFire){
+        if (Time.time > _nextFire && _canFire){
             Shoot();
         }
     }
@@ -128,22 +130,30 @@ public class Player : MonoBehaviour
     void MovePlayer()
     {
         startingPositionPerUpdate = transform.position;
+        float zPosition = 10.0f;
         if (Input.touchCount > 0){
             Touch touch = Input.GetTouch(0);
             Vector3 touchPosition = touch.position;
             if(EventSystem.current.IsPointerOverGameObject(touch.fingerId))
                 return;
 
-            touchPosition.z = 10f;
+            touchPosition.z = zPosition;
             _worldClickPosition = _mainCamera.ScreenToWorldPoint(touchPosition);
+            if (touch.phase == TouchPhase.Began){
+                _touchPlayerOffset = transform.position - _worldClickPosition;
+            }
             transform.position = Vector3.MoveTowards(transform.position, _worldClickPosition + _touchPlayerOffset, _speed * Time.deltaTime);
+
         }else if(Input.GetMouseButton(0)){
             if (EventSystem.current.IsPointerOverGameObject())
                 return;
 
             Vector3 clickPosition = Input.mousePosition;
-            clickPosition.z = 10.0f;
+            clickPosition.z = zPosition;
             _worldClickPosition = _mainCamera.ScreenToWorldPoint(clickPosition);
+            if (Input.GetMouseButtonDown(0)){
+                _touchPlayerOffset = transform.position - _worldClickPosition;
+            }
             transform.position = Vector3.MoveTowards(transform.position,_worldClickPosition + _touchPlayerOffset,_speed * Time.deltaTime);
         }else{
             float horizontalInput = Input.GetAxis("Horizontal");
@@ -212,15 +222,9 @@ public class Player : MonoBehaviour
 
     public void TakeDamage()
     {
-        if(_isShieldActive){
-            _activeShieldLives--;
-            if (_activeShieldLives <= 0){
-                _shieldVisual.SetActive(false);
-                _isShieldActive = false;
-            }
-        }else{
+        if(_isShieldActive == false){
             _lives--;
-            _uiManager.updateLivesUI(_lives);
+            _uiManager.updateLivesUI(_lives, _maxLives);
             EnableDamageIndicator();
         }
 
@@ -232,18 +236,26 @@ public class Player : MonoBehaviour
     private void ExplodePlayer(){
         // Game Over
         _isAlive = false;
-        _gameManager.GameStarted = false;
         CheckForBestScore();
         _spawnManager.OnPlayerDeath();
         Instantiate(_explosionPrefab, transform.position,Quaternion.identity);
         _uiManager.onGameOver();
         Destroy(this.gameObject);
     }
+
+    public void EndOfWave(){
+        _totalKillsPerMatch += currentWaveKills;
+        currentWaveKills = 0;
+    }
     private void CheckForBestScore(){
         int currentBestScore = PlayerPrefs.GetInt("Best Score", 0);
+        int currentHighKills = PlayerPrefs.GetInt("Most Kills", 0);
         if (currentBestScore < _score){
             PlayerPrefs.SetInt("Best Score", _score);
             _uiManager.updateBestScoreUI(_score);
+        }
+        if (currentHighKills < _totalKillsPerMatch){
+            PlayerPrefs.SetInt("Most Kills", 0);
         }
     }
 
@@ -285,7 +297,6 @@ public class Player : MonoBehaviour
 
     public void ShieldActive(int id){
         if (_isShieldActive == false){
-            _activeShieldLives = _startingShieldLives;
             _isShieldActive = true;
             _shieldVisual.SetActive(true);
             StartCoroutine(PowerDownRoutine(_shieldDuration,id));
@@ -298,11 +309,10 @@ public class Player : MonoBehaviour
         _uiManager.updateScoreUI(_score);
     }
 
-    public void toggleWeapon(){
-        
-    }
-
     IEnumerator PowerDownRoutine(float cooldown, int powerID){
+        if (powerID == 2){
+            _uiManager.StartShieldDisplay(cooldown);
+        }
         yield return new WaitForSeconds(cooldown);
         switch (powerID){
             case 0:

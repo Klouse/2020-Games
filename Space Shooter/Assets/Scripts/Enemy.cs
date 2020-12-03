@@ -1,25 +1,23 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using DG.Tweening;
+using Shapes;
+
 public class Enemy : MonoBehaviour
 {
     [SerializeField]
     private float _speed = 3.5f;
     [SerializeField]
     private float _startingSpeed = 3.5f;
-
-    [SerializeField]
     private int _lives = 3;
     [SerializeField]
     private int _startingLives = 3;
     private float _lowerYBound = -5.56f;
     private float _upperYBound = 6.99f;
-    [SerializeField]
     private int _pointValue = 10;
     private Player _player;
-    private Animator _anim;
-    int deathAnimationTriggerHash = Animator.StringToHash("OnEnemyDeath");
-    int enableAnimationTriggerHash = Animator.StringToHash("OnEnemyEnable");
+    //private Animator _anim;
     private BoxCollider2D _enemyBoxCollider2D;
     [SerializeField]
     private AudioClip _explosionAudioClip;
@@ -41,10 +39,15 @@ public class Enemy : MonoBehaviour
     private Color _enemyLaserColor;
     [SerializeField]
     private GameObjectPooler _gameObjectPool;
+    private Vector3 _enemyResetPosition = new Vector3(-20f,0,0);
+    private Transform _moveDestination;
+    private Transform _currentSpawnPoint;
+    private Sequence _wiggleSequence;
+    private Transform _engine;
 
     private void Start() {
         _player = GameObject.Find("Player").GetComponent<Player>();
-        _anim = GetComponent<Animator>();
+        //_anim = GetComponent<Animator>();
         _enemyBoxCollider2D = GetComponent<BoxCollider2D>();
         _enemyAudioSource = GetComponent<AudioSource>();
         _gameObjectPool = GameObject.Find("Spawn_Manager").GetComponent<GameObjectPooler>();
@@ -52,9 +55,9 @@ public class Enemy : MonoBehaviour
         if (_player == null){
             Debug.LogError("Player reference on Enemy is NULL");
         }
-        if (_anim == null){
-            Debug.LogError("Animator on Enemy is NULL");
-        }
+        //if (_anim == null){
+            //Debug.LogError("Animator on Enemy is NULL");
+        //}
         if (_enemyBoxCollider2D == null){
             Debug.LogError("Enemy 2D Box Collider is NULL");
         }
@@ -66,14 +69,11 @@ public class Enemy : MonoBehaviour
     private void OnEnable() {
         _rightWingDamageEnabled = false;
         _leftWingDamageEnabled = false;
-        _pointValue = Random.Range(5,15);
+        //_pointValue = Random.Range(5,15);
         _lives = _startingLives;
         _speed = _startingSpeed;
         if (_enemyBoxCollider2D != null){
             _enemyBoxCollider2D.enabled = true;
-        }
-        if (_anim != null){
-            _anim.SetTrigger(enableAnimationTriggerHash);
         }
         enemyIsAlive = true;
     }
@@ -84,13 +84,53 @@ public class Enemy : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
         if (enemyIsAlive){
+            //TweenMoveEnemy();
+            //AiMoveEnemy();
             //MoveEnemy();
             if (Time.time > _laserNextFire){
                 //Shoot();
             }
         }
+    }
+
+    public void TweenMoveEnemy(){
+        transform.DOMove(_moveDestination.position,_speed).SetEase(Ease.OutSine)
+            .From(_currentSpawnPoint.position)
+                .OnComplete(AtDestination);
+    }
+
+    private void AtDestination(){
+        try{
+            StartCoroutine(DestinationWiggle());
+
+        }catch{
+            Debug.Log("Enemy is not active to start wiggle");
+        }
+    }
+
+    IEnumerator DestinationWiggle(){
+        float wiggleTollerance = 0.25f;
+        float wiggleSpeed = _speed;
+        Ease wiggleEase = Ease.InSine;
+        Vector3[] wigglePositions = {
+        _moveDestination.position + new Vector3(wiggleTollerance, -wiggleTollerance, 0f),
+        _moveDestination.position + new Vector3(0, -(wiggleTollerance*2), 0f),
+        _moveDestination.position + new Vector3(-wiggleTollerance, -wiggleTollerance, 0f),
+        _moveDestination.position
+        };
+        _wiggleSequence = DOTween.Sequence();
+        for (int i = 0; i < wigglePositions.Length; i++)
+        {
+            _wiggleSequence.Append(transform.DOMove(wigglePositions[i], wiggleSpeed).SetEase(wiggleEase));
+        }
+        _wiggleSequence.SetLoops(-1);
+        yield return true;
+    }
+
+    public void SetSpawnAndDestination(Transform spawnpoint, Transform endpoint){
+        _currentSpawnPoint = spawnpoint;
+        _moveDestination = endpoint;
     }
 
     private void MoveEnemy(){
@@ -100,7 +140,12 @@ public class Enemy : MonoBehaviour
         }
     }
 
-    private void Shoot(){
+    private void AiMoveEnemy(){
+    }
+
+    IEnumerator Shoot(){
+        Draw.Disc(transform.position, Quaternion.identity, 0.5f, Color.red);
+        yield return new WaitForSeconds(0.1f);
         _laserNextFire = Time.time + (_fireRate/100);
         Vector3 laserPosition = transform.position;
         GameObject enemyLaser = GameObjectPooler.Instance.Get("Enemy_Laser");
@@ -169,17 +214,20 @@ public class Enemy : MonoBehaviour
             enemyIsAlive = false;
             _player.addToScore(_pointValue);
             ExplodeEnemy();
-        }else{    
+        }
+        if(_lives < (_lives/3)){
             EnableDamageIndicator();
         }
     }
 
     private void ExplodeEnemy(){
-        _anim.SetTrigger(deathAnimationTriggerHash);
+        _wiggleSequence.Kill();
+        //_anim.SetBool("EnemyDead", true);
         _enemyBoxCollider2D.enabled = false; // don't give more points after dying
         DisableDamageIndicators();
-        StartCoroutine(RapidlyDecelerate());
         _enemyAudioSource.Play();
+        transform.DOKill();
+        //StartCoroutine(RapidlyDecelerate());
         StartCoroutine(DieSlowly());
     }
 
@@ -192,8 +240,12 @@ public class Enemy : MonoBehaviour
     }
 
     IEnumerator DieSlowly(){
-        yield return new WaitForSeconds(2.8f);
-        _player._kills++;
+        _player.currentWaveKills++;
+        //yield return new WaitForSeconds(2.8f);
+        transform.position = _enemyResetPosition;
+        //yield return new WaitForSeconds(0.5f);
+        //_anim.SetBool("EnemyDead", false);
+        yield return new WaitForSeconds(0.5f);
         GetComponent<IGameObjectPooled>().Pool.ReturnToPool(this.gameObject,"Enemy");
     }
 }

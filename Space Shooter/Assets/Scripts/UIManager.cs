@@ -1,8 +1,8 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.SceneManagement;
+using TMPro;
+using System;
 
 public class UIManager : MonoBehaviour
 {
@@ -10,8 +10,8 @@ public class UIManager : MonoBehaviour
     private Text _scoreText;
     [SerializeField]
     private Text _centerText;
-    [SerializeField]
-    private Sprite[] _liveSprites;
+    //[SerializeField]
+    //private Sprite[] _liveSprites;
     [SerializeField]
     private Image _livesImage;
     [SerializeField]
@@ -39,6 +39,10 @@ public class UIManager : MonoBehaviour
     private Text _gameBestScoreText;
     private string _defaultBestScoreText = "Best Score: ";
     private string _defaultScoreText = "Score: ";
+    [SerializeField]
+    private TMP_Text  _livesText;
+    [SerializeField]
+    private HUDController _hudController;
 
     private void Start() {
         _preGameUI.gameObject.SetActive(true);
@@ -55,9 +59,9 @@ public class UIManager : MonoBehaviour
     }
 
     private void Update() {
-        if (_gameManager.GamePaused && _pauseMenuShown == false && _gameManager.GameStarted){
+        if (_gameManager.GamePaused && _pauseMenuShown == false && _gameManager.GameStarted && _gameManager.GameOver == false){
             showAndHidePauseUI();
-        }else if(_gameManager.GamePaused == false && _pauseMenuShown && _gameManager.GameStarted){
+        }else if(_gameManager.GamePaused == false && _pauseMenuShown && _gameManager.GameStarted && _gameManager.GameOver == false){
             showAndHidePauseUI();
         }
     }
@@ -73,9 +77,11 @@ public class UIManager : MonoBehaviour
         _resultsScreenBestScoreText.text = _defaultBestScoreText + bestScore;
     }
 
-    public void updateLivesUI(int currentLives){
+    public void updateLivesUI(int currentLives, int totalLives){
         if (currentLives >= 0){
-            _livesImage.sprite = _liveSprites[currentLives];
+            //_livesImage.sprite = _liveSprites[currentLives];
+            _hudController.SetCurrentHealth(currentLives, totalLives);
+            _livesText.text = currentLives.ToString();
         }
     }
     
@@ -105,6 +111,7 @@ public class UIManager : MonoBehaviour
         _gameOverPanel.gameObject.SetActive(true);
         _gameOverAnim.SetBool("isActive", true);
         StartCoroutine(TextFlicker(_gameOverText));
+        _gameManager.GameStarted = false;
         _gameManager.GameOver = true;
     }
     IEnumerator TextFlicker(Text textToFlicker, int flickerCount = 0){
@@ -141,6 +148,9 @@ public class UIManager : MonoBehaviour
         _centerText.text = null;
         _centerText.gameObject.SetActive(false);
     }
-
-
+    
+    public void StartShieldDisplay(float seconds)
+    {
+        _hudController.SetShieldDelay(seconds);
+    }
 }

@@ -10,9 +10,9 @@ public class SpawnManager : MonoBehaviour
     [System.Serializable]
     public class Wave{
         public string name;
-        public int numberOfEnemies;
         public int secondsToWaitBeforeSpawning;
         public float rateBetweenEnemies;
+        public int[] endPointsForEnemies;
     }
 
     public Wave[] _waves;
@@ -28,6 +28,18 @@ public class SpawnManager : MonoBehaviour
     private float _upperYBound = 7.0f;
     [SerializeField]
     private Transform[] _spawnPoints;
+    [SerializeField]
+    private float _firstEndPointY;
+    [SerializeField]
+    private GameObject _endPointPrefab;
+    [SerializeField]
+    private GameObject _endPointContainer;
+    private List<Transform> _allEndPoints;
+    [SerializeField]
+    private float maxColumns = 7;
+    [SerializeField]
+    private float _endPointGridOffset = 0.5f;
+    private Queue<Transform> _currentWaveEndPoints;
     [SerializeField]
     private GameObject _enemyContainer;
     [SerializeField]
@@ -56,6 +68,33 @@ public class SpawnManager : MonoBehaviour
         _player = GameObject.FindWithTag("Player").GetComponent<Player>();
         _waveCountdown = _waves[0].secondsToWaitBeforeSpawning;
         StartSpawningPreGameplay();
+        CreateEndPoints(maxColumns * maxColumns);
+    }
+
+    private void CreateEndPoints(float maxEndPoints)
+    {
+        _allEndPoints = new List<Transform>();
+        int currentColumn = 0;
+        float offset = _endPointGridOffset;
+        float defaultXPosition = (0f - (offset * ((maxColumns-1)/2)));
+        float x = defaultXPosition;
+        float y = _firstEndPointY;
+        float z = 0f;
+        for (int i = 0; i < maxEndPoints; i++)
+        {
+            GameObject newEndpoint = Instantiate(_endPointPrefab, new Vector3(x, y, z), Quaternion.identity);
+            newEndpoint.name = _endPointPrefab.name + i;
+            newEndpoint.transform.parent = _endPointContainer.transform;
+            _allEndPoints.Add(newEndpoint.transform);
+            if (currentColumn >= (maxColumns-1)){
+                x = defaultXPosition;
+                y -= offset;
+                currentColumn = 0;
+            }else{
+                x += offset;
+                currentColumn++;
+            }
+        }
     }
 
     private void Update() {
@@ -67,10 +106,9 @@ public class SpawnManager : MonoBehaviour
             }
         }
         if (_gameplaySpawning){
-            Debug.Log("Wave countdown: " + _waveCountdown);
             if (_waveCountdown <= 0){
                 if (state != SpawnState.SPAWNING){
-                    StartCoroutine(SpawnEnemyWaveRoutine(_waves[_nextWave]));
+                    StartCoroutine(StartSpawnEnemyWaveRoutine(_waves[_nextWave]));
                 }
             }else{
                 _waveCountdown -= Time.deltaTime;
@@ -81,6 +119,7 @@ public class SpawnManager : MonoBehaviour
     private void WaveCompleted(){
         Debug.Log("Wave Completed -- Good Job");
         state = SpawnState.COUNTING;
+        _player.EndOfWave();
         if (_nextWave + 1 > _waves.Length - 1){
             // game over, now loop
             _nextWave = 0;
@@ -93,10 +132,9 @@ public class SpawnManager : MonoBehaviour
 
     private bool AnyEnemiesAlive(){
         searchCountdown -= Time.deltaTime;
-        var enemyCount = _waves[_nextWave].numberOfEnemies;
         if (searchCountdown <= 0){
             searchCountdown = 1f;
-            if (_player._kills >= enemyCount){
+            if (_player.currentWaveKills >= _waves[_nextWave].endPointsForEnemies.Length){
                 return false;
             }
         }
@@ -114,11 +152,15 @@ public class SpawnManager : MonoBehaviour
         StartCoroutine(SpawnPowerUpRoutine(secondsToWaitBeforeSpawning));
     }
  
-    IEnumerator SpawnEnemyWaveRoutine(Wave wave)
+    IEnumerator StartSpawnEnemyWaveRoutine(Wave wave)
     {
+        _currentWaveEndPoints = new Queue<Transform>();
+        for (int i = 0; i < wave.endPointsForEnemies.Length; i++){
+            _currentWaveEndPoints.Enqueue(_allEndPoints[wave.endPointsForEnemies[i]]);
+        }
         Debug.Log("Spawning Wave: "+ wave.name);
         state = SpawnState.SPAWNING;
-        for (int i = 0; i < wave.numberOfEnemies; i++)
+        for (int i = 0; i < wave.endPointsForEnemies.Length; i++)
         {
             SpawnEnemy();
             yield return new WaitForSeconds(1f/ wave.rateBetweenEnemies);
@@ -135,9 +177,13 @@ public class SpawnManager : MonoBehaviour
         Transform currentSpawnPoint = _spawnPoints[Random.Range(0,_spawnPoints.Length)];
         var newEnemy = GameObjectPooler.Instance.Get("Enemy");
         newEnemy.transform.position = currentSpawnPoint.position;
-        newEnemy.transform.localEulerAngles = currentSpawnPoint.localEulerAngles;
+        //newEnemy.transform.localEulerAngles = currentSpawnPoint.localEulerAngles;
         newEnemy.transform.parent = _enemyContainer.transform;
+        Enemy newEnemyScript = newEnemy.GetComponent<Enemy>();
+        newEnemyScript.SetSpawnAndDestination(currentSpawnPoint,_currentWaveEndPoints.Dequeue());
+        //newEnemy.GetComponent<EnemyAI>().StartPathing(_currentWaveEndPoints.Dequeue());
         newEnemy.SetActive(true);
+        newEnemyScript.TweenMoveEnemy();
     }
 
     IEnumerator SpawnPowerUpRoutine(float secondsToWaitBeforeSpawning)

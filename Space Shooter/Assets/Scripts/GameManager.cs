@@ -6,7 +6,6 @@ using UnityEngine.SceneManagement;
 public class GameManager : MonoBehaviour
 {
     public bool GameOver{get; set;}
-
     public bool GameStarted{get; set;}
     public bool GamePaused{get; set;}
 

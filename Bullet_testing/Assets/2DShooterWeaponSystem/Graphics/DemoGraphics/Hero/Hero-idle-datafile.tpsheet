@@ -1,0 +1,40 @@
+#
+# Sprite sheet data for Unity.
+#
+# To import these sprites into your Unity project, download "TexturePackerImporter":
+# http://www.codeandweb.com/texturepacker/unity
+#
+# Sprite sheet: Hero-idle-texturefile.png (512 x 1024)
+# $TexturePacker:SmartUpdate:9fb456596d9cba2711a0ef3b89fd9a8f:e69eb77b6933931721f39f1d0dfecc92:54af2a2952007e22d5c3d77d0017aca0$
+#
+
+hero-idle01;0;924;100;100;0.5;0.5
+hero-idle02;100;924;100;100;0.5;0.5
+hero-idle03;200;924;100;100;0.5;0.5
+hero-idle04;300;924;100;100;0.5;0.5
+hero-idle05;400;924;100;100;0.5;0.5
+hero-idle06;0;824;100;100;0.5;0.5
+hero-idle07;100;824;100;100;0.5;0.5
+hero-idle08;200;824;100;100;0.5;0.5
+hero-idle09;300;824;100;100;0.5;0.5
+hero-idle10;400;824;100;100;0.5;0.5
+hero-idle11;0;724;100;100;0.5;0.5
+hero-idle12;100;724;100;100;0.5;0.5
+hero-idle13;200;724;100;100;0.5;0.5
+hero-idle14;300;724;100;100;0.5;0.5
+hero-idle15;400;724;100;100;0.5;0.5
+hero-idle16;0;624;100;100;0.5;0.5
+hero-idle17;100;624;100;100;0.5;0.5
+hero-idle18;200;624;100;100;0.5;0.5
+hero-idle19;300;624;100;100;0.5;0.5
+hero-idle20;400;624;100;100;0.5;0.5
+hero-idle21;0;524;100;100;0.5;0.5
+hero-idle22;100;524;100;100;0.5;0.5
+hero-idle23;200;524;100;100;0.5;0.5
+hero-idle24;300;524;100;100;0.5;0.5
+hero-idle25;400;524;100;100;0.5;0.5
+hero-idle26;0;424;100;100;0.5;0.5
+hero-idle27;100;424;100;100;0.5;0.5
+hero-idle28;200;424;100;100;0.5;0.5
+hero-idle29;300;424;100;100;0.5;0.5
+hero-idle30;400;424;100;100;0.5;0.5

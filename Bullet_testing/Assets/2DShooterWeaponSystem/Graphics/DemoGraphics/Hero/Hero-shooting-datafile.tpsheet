@@ -1,0 +1,26 @@
+#
+# Sprite sheet data for Unity.
+#
+# To import these sprites into your Unity project, download "TexturePackerImporter":
+# http://www.codeandweb.com/texturepacker/unity
+#
+# Sprite sheet: Hero-shooting-texturefile.png (512 x 512)
+# $TexturePacker:SmartUpdate:afb45fc6129d5f859555270bed6550c1:b06bf59d65d9fcfad2f2feaffbefbd9d:24c2577db2a88dddd2d0e0c93862db84$
+#
+
+Hero-shooting-in-01;0;412;100;100;0.5;0.5
+Hero-shooting-in-02;100;412;100;100;0.5;0.5
+Hero-shooting-in-03;200;412;100;100;0.5;0.5
+Hero-shooting-in-04;300;412;100;100;0.5;0.5
+Hero-shooting-in-05;400;412;100;100;0.5;0.5
+Hero-shooting-in-06;0;312;100;100;0.5;0.5
+Hero-shooting-in-07;100;312;100;100;0.5;0.5
+Hero-shooting-loop-01;200;312;100;100;0.5;0.5
+Hero-shooting-loop-02;300;312;100;100;0.5;0.5
+Hero-shooting-out-01;400;312;100;100;0.5;0.5
+Hero-shooting-out-02;0;212;100;100;0.5;0.5
+Hero-shooting-out-03;100;212;100;100;0.5;0.5
+Hero-shooting-out-04;200;212;100;100;0.5;0.5
+Hero-shooting-out-05;300;212;100;100;0.5;0.5
+Hero-shooting-out-06;400;212;100;100;0.5;0.5
+Hero-shooting-out-07;0;112;100;100;0.5;0.5
