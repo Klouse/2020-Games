@@ -1,0 +1,27 @@
+#
+# Sprite sheet data for Unity.
+#
+# To import these sprites into your Unity project, download "TexturePackerImporter":
+# http://www.codeandweb.com/texturepacker/unity
+#
+# Sprite sheet: Hero-walking-texturefile.png (512 x 512)
+# $TexturePacker:SmartUpdate:770ab6ad3642f8b6184320c43602ac2e:aba0dfd09435c7feee3a15e82e877558:6077caa38b6fcbc1466300d1f37db27c$
+#
+
+Hero-walking-01;0;412;100;100;0.5;0.5
+Hero-walking-02;100;412;100;100;0.5;0.5
+Hero-walking-03;200;412;100;100;0.5;0.5
+Hero-walking-04;300;412;100;100;0.5;0.5
+Hero-walking-05;400;412;100;100;0.5;0.5
+Hero-walking-06;0;312;100;100;0.5;0.5
+Hero-walking-07;100;312;100;100;0.5;0.5
+Hero-walking-08;200;312;100;100;0.5;0.5
+Hero-walking-09;300;312;100;100;0.5;0.5
+Hero-walking-10;400;312;100;100;0.5;0.5
+Hero-walking-11;0;212;100;100;0.5;0.5
+Hero-walking-12;100;212;100;100;0.5;0.5
+Hero-walking-13;200;212;100;100;0.5;0.5
+Hero-walking-14;300;212;100;100;0.5;0.5
+Hero-walking-15;400;212;100;100;0.5;0.5
+Hero-walking-16;0;112;100;100;0.5;0.5
+Hero-walking-17;100;112;100;100;0.5;0.5
