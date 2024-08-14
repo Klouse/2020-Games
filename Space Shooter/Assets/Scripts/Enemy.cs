@@ -39,11 +39,14 @@ public class Enemy : MonoBehaviour
     private Color _enemyLaserColor;
     [SerializeField]
     private GameObjectPooler _gameObjectPool;
+    private Bullet _bullet;
+    private WeaponSystem _weaponSystem;
     private Vector3 _enemyResetPosition = new Vector3(-20f,0,0);
     private Transform _moveDestination;
     private Transform _currentSpawnPoint;
     private Sequence _wiggleSequence;
     private Transform _engine;
+    private bool _canFire = false;
 
     private void Start() {
         _player = GameObject.Find("Player").GetComponent<Player>();
@@ -51,6 +54,9 @@ public class Enemy : MonoBehaviour
         _enemyBoxCollider2D = GetComponent<BoxCollider2D>();
         _enemyAudioSource = GetComponent<AudioSource>();
         _gameObjectPool = GameObject.Find("Spawn_Manager").GetComponent<GameObjectPooler>();
+        _bullet = transform.GetComponentInChildren<Bullet>();
+        _weaponSystem = transform.GetComponentInChildren<WeaponSystem>();
+        _weaponSystem.autoFire = false;
 
         if (_player == null){
             Debug.LogError("Player reference on Enemy is NULL");
@@ -65,6 +71,9 @@ public class Enemy : MonoBehaviour
             Debug.LogError("Enemy Audio Source is NULL");
         }
         _enemyAudioSource.clip = _explosionAudioClip;
+        if (_bullet != null){
+        }
+        _bullet.bulletOwner = Bullet.BulletOwner.Enemy;
     }
     private void OnEnable() {
         _rightWingDamageEnabled = false;
@@ -93,6 +102,12 @@ public class Enemy : MonoBehaviour
             }
         }
     }
+
+    public bool canFire{ 
+        get{return _canFire;} 
+        set{_canFire = true;
+            _weaponSystem.autoFire = true;}
+        }
 
     public void TweenMoveEnemy(){
         transform.DOMove(_moveDestination.position,_speed).SetEase(Ease.OutSine)
@@ -173,10 +188,9 @@ public class Enemy : MonoBehaviour
             }
             TakeDamage();
         }else if (other.tag == "Laser"){
-            Laser laser = other.gameObject.GetComponent<Laser>();
-            if (laser != null && laser.IsEnemyLaser == false){
+            var bullet = other.gameObject.GetComponent<Bullet>();
+            if (bullet != null && bullet.bulletOwner == Bullet.BulletOwner.Player){
                 TakeDamage();
-                laser.ReturnLaserToPool();
             }
         }
     }

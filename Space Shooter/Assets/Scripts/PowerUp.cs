@@ -38,22 +38,13 @@ public class PowerUp : MonoBehaviour
         if (other.tag == "Player"){
             Player player = other.GetComponent<Player>();
             if (player != null){
-                switch (powerUpID){
-                    case 0:
-                        player.TripleShotActive(powerUpID);
-                        break;
-                    case 1:
-                        player.SpeedActive(powerUpID);
-                        break;
-                    case 2:
-                        player.ShieldActive(powerUpID);
-                        break;
-                    case 3:
-                        player.FocusShotActive(powerUpID);
-                        break;
-                    default:
-                        Debug.Log("Default Value for Power Up");
-                        break;
+                if (powerUpID == 2)
+                {
+                    player.ChangeWeapon(powerUpID);
+                }
+                else
+                {
+                    player.ChangeWeapon();
                 }
             }
             _audioManager.PlayerPowerUpSoundClip();

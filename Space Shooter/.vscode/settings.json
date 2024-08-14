@@ -1,6 +1,5 @@
-﻿{
-    "files.exclude":
-    {
+{
+    "files.exclude": {
         "**/.DS_Store": true,
         "**/.git": true,
         "**/.gitignore": true,
@@ -10,7 +9,6 @@
         "**/*.3DS": true,
         "**/*.asset": true,
         "**/*.booproj": true,
-        "**/*.csproj": true,
         "**/*.cubemap": true,
         "**/*.dll": true,
         "**/*.exe": true,
@@ -55,13 +53,13 @@
         "Obj/": true,
         "temp/": true,
         "Temp/": true,
-        "**/Packages" : true,
-        "**/WindowsBuilds" : true,
-        "**/iosBuilds" : true,
-        "**/Builds" : true,
-        "**/AndroidBuilds" : true,
-        "**/Logs" : true,
-        "**/*.sln": true
+        "**/Packages": true,
+        "**/WindowsBuilds": true,
+        "**/iosBuilds": true,
+        "**/Builds": true,
+        "**/AndroidBuilds": true,
+        "**/Logs": true
     },
-    "git.ignoreLimitWarning": true
+    "git.ignoreLimitWarning": true,
+    "dotnet.defaultSolution": "Space Shooter.sln"
 }

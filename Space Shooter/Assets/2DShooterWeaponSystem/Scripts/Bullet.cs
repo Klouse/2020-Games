@@ -79,7 +79,7 @@ public class Bullet : MonoBehaviour {
     void Start()
     {
         // Cache the sprite renderer on start when bullets are initially created and pooled for better performance
-        bulletSpriteRenderer = gameObject.GetComponent<SpriteRenderer>();
+        bulletSpriteRenderer = gameObject.GetComponentInChildren<SpriteRenderer>();
     }
 
     void OnEnable()

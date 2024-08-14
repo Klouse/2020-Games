@@ -7,6 +7,7 @@ public class Player : MonoBehaviour
 {
     private SpawnManager _spawnManager;
     private GameManager _gameManager;
+    private Bullet _bullet;
     private Camera _mainCamera;
     private UIManager _uiManager;
 
@@ -33,9 +34,11 @@ public class Player : MonoBehaviour
     private Vector3 _laserOffset = new Vector3(0f,0.5f,0f);
     public float fireRate = 0.15f;
     private float _nextFire = 0.0f;
-
-    private Dictionary<string, bool> _weapons;
-
+    [SerializeField]
+    private bool _canFire = true;
+    [SerializeField]
+    private WeaponSystem _weaponSystem;
+    [SerializeField] private int _currentWeapon;
     // Power Ups
     [SerializeField]
     private bool _isTripleShotActive;
@@ -66,20 +69,23 @@ public class Player : MonoBehaviour
 
     // Animations
     private Animator _anim;
+    [SerializeField] private Animator _bodyAnimator;
+    [SerializeField] private int _skinNumber = 5;
+
     //Sound
     [SerializeField]
     private AudioClip _laserAudioClip;
     private AudioSource _playerAudioSource;
     [SerializeField]
     private GameObject _explosionPrefab;
-    [SerializeField]
-    private bool _canFire = true;
 
     private void Awake() {
         _mainCamera = Camera.main;
         _uiManager = GameObject.Find("Canvas").GetComponent<UIManager>();
         _spawnManager = GameObject.Find("Spawn_Manager").GetComponent<SpawnManager>();
         _gameManager = GameObject.Find("Game_Manager").GetComponent<GameManager>();
+        _bullet = transform.GetComponentInChildren<Bullet>();
+
         _anim = GetComponent<Animator>();
         _playerAudioSource = GetComponent<AudioSource>();
     }
@@ -107,12 +113,22 @@ public class Player : MonoBehaviour
         if (_gameManager == null){
             Debug.LogError("Game Manager on Player is NULL");
         }
-        if (_anim == null){
-            Debug.LogError("Animator on Player is NULL");
+        if (_bodyAnimator == null)
+        {
+            Debug.LogError("Rocket Body Animator on Player is NULL");
         }
         if (_playerAudioSource == null){
             Debug.LogError("Audio Source on Player is NULL");
         }
+        if (_weaponSystem == null){
+            Debug.LogError("Weapon System on Player is NULL");
+        }
+        if (_bullet == null)
+        {
+            Debug.LogError("Bullet is NULL");
+        }
+        ChangeSkin(_skinNumber);
+        _bullet.bulletOwner = Bullet.BulletOwner.Player;
     }
 
     // Update is called once per frame
@@ -168,18 +184,18 @@ public class Player : MonoBehaviour
 
     void AnimatePlayer(){
         // Handle the player animation state change based on player movement
-        if (playerMovementDirection.x < 0){
-            _anim.CrossFade("Player_Turn_Left_Anim",0.3f);
-            _anim.Play("Player_Turn_Left_Anim");
-        }
-        if (playerMovementDirection.x > 0){
-            _anim.CrossFade("Player_Turn_Right_Anim",0.3f);
-            _anim.Play("Player_Turn_Right_Anim");
-        }
-        if(playerMovementDirection.x == 0){
-            _anim.CrossFade("Idle",0.3f);
-            _anim.Play("Idle");
-        }
+        //if (playerMovementDirection.x < 0){
+        //    _anim.CrossFade("Player_Turn_Left_Anim",0.3f);
+        //    _anim.Play("Player_Turn_Left_Anim");
+        //}
+        //if (playerMovementDirection.x > 0){
+        //    _anim.CrossFade("Player_Turn_Right_Anim",0.3f);
+        //    _anim.Play("Player_Turn_Right_Anim");
+        //}
+        //if(playerMovementDirection.x == 0){
+        //    _anim.CrossFade("Idle",0.3f);
+        //    _anim.Play("Idle");
+        //}
     }
 
     void BindPlayer(){
@@ -218,6 +234,162 @@ public class Player : MonoBehaviour
         //Play Laser Audio Clip
         _playerAudioSource.clip = _laserAudioClip;
         _playerAudioSource.Play();
+    }
+
+    public void ChangeWeapon(){
+        // cycle weapons
+        if (_currentWeapon + 1 > _weaponSystem.weaponConfigs.Count){
+            _currentWeapon = 0;
+        }else{
+            _currentWeapon++;
+        }
+        _weaponSystem.EquipWeaponConfiguration(_currentWeapon);
+    }
+
+    public void ChangeWeapon(int weaponId)
+    {
+        switch (weaponId)
+        {
+            case 0:
+                TripleShotActive(weaponId);
+                break;
+            case 1:
+                SpeedActive(weaponId);
+                break;
+            case 2:
+                ShieldActive(weaponId);
+                break;
+            case 3:
+                FocusShotActive(weaponId);
+                break;
+            default:
+                Debug.Log("Default Value for Power Up");
+                break;
+        }
+    }
+
+    public void CycleSkin()
+    {
+        if (_skinNumber == 31)
+        {
+            _skinNumber = 0;
+        }
+        else
+        {
+            _skinNumber++;
+        }
+        ChangeSkin(_skinNumber);
+    }
+
+    public void ChangeSkin(int skin)
+    {
+        switch (skin)
+        {
+            case 0:
+                ChooseAnimation("blue_flame", "rocket_blue_red", _bodyAnimator);
+                break;
+            case 1:
+                ChooseAnimation("blue_flame", "rocket_orange_red", _bodyAnimator);
+                break;
+            case 2:
+                ChooseAnimation("blue_flame", "rocket_green_red", _bodyAnimator);
+                break;
+            case 3:
+                ChooseAnimation("blue_flame", "rocket_dark_blue", _bodyAnimator);
+                break;
+            case 4:
+                ChooseAnimation("blue_flame", "rocket_purple", _bodyAnimator);
+                break;
+            case 5:
+                ChooseAnimation("blue_flame", "rocket_purple_white", _bodyAnimator);
+                break;
+            case 6:
+                ChooseAnimation("blue_flame", "rocket_yellow_blue", _bodyAnimator);
+                break;
+            case 7:
+                ChooseAnimation("blue_flame", "rocket_yellow_stars", _bodyAnimator);
+                break;
+            case 8:
+                ChooseAnimation("yellow_flame", "rocket_blue_red", _bodyAnimator);
+                break;
+            case 9:
+                ChooseAnimation("yellow_flame", "rocket_orange_red", _bodyAnimator);
+                break;
+            case 10:
+                ChooseAnimation("yellow_flame", "rocket_green_red", _bodyAnimator);
+                break;
+            case 11:
+                ChooseAnimation("yellow_flame", "rocket_dark_blue", _bodyAnimator);
+                break;
+            case 12:
+                ChooseAnimation("yellow_flame", "rocket_purple", _bodyAnimator);
+                break;
+            case 13:
+                ChooseAnimation("yellow_flame", "rocket_purple_white", _bodyAnimator);
+                break;
+            case 14:
+                ChooseAnimation("yellow_flame", "rocket_yellow_blue", _bodyAnimator);
+                break;
+            case 15:
+                ChooseAnimation("yellow_flame", "rocket_yellow_stars", _bodyAnimator);
+                break;
+            case 16:
+                ChooseAnimation("green_flame", "rocket_blue_red", _bodyAnimator);
+                break;
+            case 17:
+                ChooseAnimation("green_flame", "rocket_orange_red", _bodyAnimator);
+                break;
+            case 18:
+                ChooseAnimation("green_flame", "rocket_green_red", _bodyAnimator);
+                break;
+            case 19:
+                ChooseAnimation("green_flame", "rocket_dark_blue", _bodyAnimator);
+                break;
+            case 20:
+                ChooseAnimation("green_flame", "rocket_purple", _bodyAnimator);
+                break;
+            case 21:
+                ChooseAnimation("green_flame", "rocket_purple_white", _bodyAnimator);
+                break;
+            case 22:
+                ChooseAnimation("green_flame", "rocket_yellow_blue", _bodyAnimator);
+                break;
+            case 23:
+                ChooseAnimation("green_flame", "rocket_yellow_stars", _bodyAnimator);
+                break;
+            case 24:
+                ChooseAnimation("pink_flame", "rocket_blue_red", _bodyAnimator);
+                break;
+            case 25:
+                ChooseAnimation("pink_flame", "rocket_orange_red", _bodyAnimator);
+                break;
+            case 26:
+                ChooseAnimation("pink_flame", "rocket_green_red", _bodyAnimator);
+                break;
+            case 27:
+                ChooseAnimation("pink_flame", "rocket_dark_blue", _bodyAnimator);
+                break;
+            case 28:
+                ChooseAnimation("pink_flame", "rocket_purple", _bodyAnimator);
+                break;
+            case 29:
+                ChooseAnimation("pink_flame", "rocket_purple_white", _bodyAnimator);
+                break;
+            case 30:
+                ChooseAnimation("pink_flame", "rocket_yellow_blue", _bodyAnimator);
+                break;
+            case 31:
+                ChooseAnimation("pink_flame", "rocket_yellow_stars", _bodyAnimator);
+                break;
+        }
+    }
+
+    private void OnCollisionEnter2D(Collision2D other) {
+        if (other.gameObject.tag == "Laser" && 
+            _isAlive && 
+            other.gameObject.GetComponent<Bullet>().bulletOwner == Bullet.BulletOwner.Enemy){
+                TakeDamage();
+        }
     }
 
     public void TakeDamage()
@@ -332,6 +504,48 @@ public class Player : MonoBehaviour
             default:
                 Debug.Log("Default Value Power Down Routine");
                 break;
+        }
+    }
+
+    public void ChooseAnimation(string animationName1, string animationName2, Animator animator, bool enable = true)
+    {
+        Debug.Log("Choosing animation");
+        if (animator.parameterCount > 0)
+        {
+            Debug.Log("parameters found");
+            try
+            {
+                Debug.Log("Setting all animations to false");
+                // turn off all the non requested animation bools
+                for (int anim = 0; anim < animator.parameterCount; anim++)
+                {
+                    Debug.Log($"Checking parameter: {animator.GetParameter(anim).name}");
+                    if (animator.GetBool(animator.GetParameter(anim).name) == enable)
+                    {
+                        Debug.Log($"Animation setting to false");
+                        animator.SetBool(animator.GetParameter(anim).name, false);
+                    }
+                }
+                // set the requested animation to the desired enabled state
+                if (animator.GetBool(animationName1) != enable)
+                {
+                    Debug.Log($"Setting bool {animationName1}");
+                    animator.SetBool(animationName1, enable);
+                    Debug.Log("Bool set successful");
+                }
+
+                // set the requested animation to the desired enabled state
+                if (animator.GetBool(animationName2) != enable)
+                {
+                    Debug.Log($"Setting bool {animationName2}");
+                    animator.SetBool(animationName2, enable);
+                    Debug.Log("Bool set successful");
+                }
+            }
+            catch
+            {
+                throw;
+            }
         }
     }
 }

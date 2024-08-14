@@ -181,9 +181,17 @@ public class SpawnManager : MonoBehaviour
         newEnemy.transform.parent = _enemyContainer.transform;
         Enemy newEnemyScript = newEnemy.GetComponent<Enemy>();
         newEnemyScript.SetSpawnAndDestination(currentSpawnPoint,_currentWaveEndPoints.Dequeue());
+        newEnemy.GetComponentInChildren<WeaponSystem>().autoFire = DoesTheEnemyFire();
         //newEnemy.GetComponent<EnemyAI>().StartPathing(_currentWaveEndPoints.Dequeue());
         newEnemy.SetActive(true);
         newEnemyScript.TweenMoveEnemy();
+    }
+
+    bool DoesTheEnemyFire(){
+        if(Random.Range(0,1000) > 950)
+        return true;
+        else
+        return false;
     }
 
     IEnumerator SpawnPowerUpRoutine(float secondsToWaitBeforeSpawning)
